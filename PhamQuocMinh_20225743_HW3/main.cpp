@@ -65,7 +65,20 @@ void registerNewUser() {
     scanf("%s", newAcc->password);
     printf("Homepage: ");
     scanf("%s", newAcc->homepage);
-    newAcc->status = 2;  
+    struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC; 
+    hints.ai_socktype = SOCK_STREAM;
+
+    int status = getaddrinfo(newAcc->homepage, NULL, &hints, &res);
+    if (status != 0) {
+        printf("Invalid homepage. Account is idle. Please contact admin.\n");
+        newAcc->status = 2; 
+    } else {
+        printf("Valid homepage. Account is active.\n");
+        newAcc->status = 1;
+        freeaddrinfo(res);
+    }
     newAcc->next = headAcc;
     newAcc->prev = NULL;
     if (headAcc != NULL) {
@@ -174,8 +187,7 @@ void viewLoginHistory() {
 
 void logOut() {
     if (!isAuthenticated) {
-        printf("You need to log in first.\n");
-        userLogin();
+        printf("You are already logout.\n");
         return;
     }
     isAuthenticated = false;
